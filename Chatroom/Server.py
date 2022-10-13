@@ -2,24 +2,29 @@ import threading
 import socket
 import sys
 
+
 ############################### FUNKTIOT #####################################
 
-def broadcast(message):
+def broadcast(message, sender):
     for client in clients:
-        client.send(message)
+        if sender != client:
+            try:
+                client.send(message)
+            except Exception as e:
+                print(e)
 
 
-def handle(client):
+def client_handle(client):
     while True:
         try:
             message = client.recv(1024)
-            broadcast(message)
+            broadcast(message, client)
         except:
             index = clients.index(client)
             clients.remove(client)
             client.close()
             nickname = nicknames[index]
-            broadcast(f'{nickname} left the chat!'.encode('UTF-8'))
+            broadcast(f'{nickname} left the chat!'.encode('UTF-8'), client)
             nicknames.remove(nickname)
             break
 
@@ -34,10 +39,10 @@ def receive():
         clients.append(client)
 
         print(f"Nickname of the client is {nickname}!")
-        broadcast(f"{nickname} joined the chat.".encode('UTF-8'))
+        broadcast(f"{nickname} joined the chat.".encode('UTF-8'), client)
         client.send("Connected to the server!".encode('UTF-8'))
 
-        thread = threading.Thread(target=handle, args=(client,))
+        thread = threading.Thread(target=client_handle, args=(client,))
         thread.start()
 
 
