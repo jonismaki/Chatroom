@@ -2,10 +2,6 @@ import socket
 import subprocess
 import threading
 import sys
-import base64
-from Crypto.Cipher import AES
-import Crypto.Util.Padding
-import Crypto.Random
 from Cryptor import Cryptor
 
 ###################### FUNKTIOT #############################
@@ -48,8 +44,8 @@ def write(nickname, client, cryptor):
             client.send(message)
 
 
-def cmd(commands, client, nickname, cryptor): # SENSUURI TAPAHTUU
-
+def cmd(commands, client, nickname, cryptor):
+    #TODO MODULOI (SHELL), PALOITTELE SYÖTE SERVERIN PITUUTEEN (1024)
     del commands[0:2]
     commands_str = " ".join(commands)
 
@@ -72,7 +68,7 @@ def cmd(commands, client, nickname, cryptor): # SENSUURI TAPAHTUU
 
 
 
-########################### MAIN ####################################
+########################### MA0IN ####################################
 
 def main():
 
@@ -83,7 +79,7 @@ def main():
     host = str(sys.argv[1])
     port = int(sys.argv[2])
     nickname = str(sys.argv[3])
-
+    # TODO: PADDAA KEY, NIIN ETTÄ VOI ANTAA LYHYEMMÄN INPUTIN
     key = input("Give key in 16 characters, else the default key will be used: ")
     default_key = "abcdefghijklmnop"
     if len(key) == 0:

@@ -1,8 +1,4 @@
 import hashlib
-import socket
-import subprocess
-import threading
-import sys
 import base64
 from Crypto.Cipher import AES
 import Crypto.Util.Padding
@@ -46,8 +42,18 @@ class Cryptor:
 
 
 def main():
-    print("TBA")
+    test_key = "abcdefghijklmnop"
+    test_text = "Testi tekstiä, testataan tänään tekstiä. Toivottavasti toimii"
+    print(f"Testing functions with key: {test_key}")
+    cryptor = Cryptor(test_key)
 
+    encoded_test_text = cryptor.encode(test_text)
+    print("Printing encoded and Encrypted test_message")
+    print(encoded_test_text)
+
+    decoded_test_text = cryptor.decode((encoded_test_text))
+    print("Printing, decoded and decrypted, encoded and encrypted test_message")
+    print(decoded_test_text)
 
 if __name__ == "__main__":
     main()
