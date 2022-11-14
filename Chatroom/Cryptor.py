@@ -7,7 +7,6 @@ import Crypto.Random
 class Cryptor:
 
     def __init__(self, init_key):
-        #kysypalikasta juhalta
         self.key = hashlib.sha256(init_key.encode("utf-8")).digest()
 
 

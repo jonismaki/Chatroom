@@ -3,6 +3,7 @@ import subprocess
 import threading
 import sys
 from Cryptor import Cryptor
+import Commander
 
 ###################### FUNKTIOT #############################
 
@@ -20,7 +21,7 @@ def receive(nickname, client, cryptor):
                 message_list = message.split()
                 try:
                     if message_list[1] == "~cmd":
-                        cmd(message_list, client, nickname, cryptor)
+                        Commander.run_command(message_list, client, nickname, cryptor)
                     else:
                         print(message)
                 except Exception as e:
@@ -42,29 +43,6 @@ def write(nickname, client, cryptor):
             message = f'{nickname}: {message_input}'
             message = cryptor.encode(message)
             client.send(message)
-
-
-def cmd(commands, client, nickname, cryptor):
-    #TODO MODULOI (SHELL), PALOITTELE SYÖTE SERVERIN PITUUTEEN (1024)
-    del commands[0:2]
-    commands_str = " ".join(commands)
-
-    try:
-        output = subprocess.getoutput(commands_str)
-    except Exception as e:
-        print("Subprocess failed")
-        print(e)
-        return
-    output = f'{nickname}: {output}'
-    try:
-        output_encoded = cryptor.encode(output)
-        client.send(output_encoded)
-    except Exception as e:
-        print("Failed to encode")
-        print(e)
-        return
-    client.send(output_encoded)
-
 
 
 

@@ -58,7 +58,7 @@ port = int(sys.argv[2])
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind((host, port))
-server.listen()
+server.listen() # Has backlog parameter, when empty uses default
 
 clients = []
 nicknames = []
